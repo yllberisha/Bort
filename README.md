@@ -29,16 +29,26 @@ The underlying solver is SCIP (via OR-Tools), which is a high-performance solver
 
 ### Running the Solver
 
+The solver expects input files to be in the `input/` directory and automatically saves solutions to the `output/` directory.
+
 ```bash
+<<<<<<< Updated upstream
 python bort.py [input_file]
 ```
 
 Parameters:
 - `--input`: Path to the input problem file (required)
+=======
+python bort.py [input_filename]
+```
+
+Where `[input_filename]` is the name of the file in the `input/` directory.
+>>>>>>> Stashed changes
 
 ### Example
 
 ```bash
+<<<<<<< Updated upstream
 python main.py data/a_example.txt
 ```
 
@@ -49,6 +59,15 @@ You can validate the solutions using the validation script:
 ```bash
 python validate.py [input_file] [solution_file]
 ```
+=======
+python bort.py a_example.txt
+```
+
+This will:
+1. Read the problem from `input/a_example.txt`
+2. Solve it using the MILP model
+3. Save the solution to `output/a_example_solution.txt`
+>>>>>>> Stashed changes
 
 ## Input Format
 
@@ -70,9 +89,14 @@ The solution file format:
 ## Repository Structure
 
 - `bort_solver.py`: Core optimization model implementation
+<<<<<<< Updated upstream
 - `bort.py`: Command-line interface for running the solver
+=======
+- `bort.py`: Command-line script that runs the solver
+>>>>>>> Stashed changes
 - `utils.py`: Utility functions for file I/O and solution formatting
-- `validate.py`: Script to validate solutions against problem constraints
+- `input/`: Directory containing problem input files
+- `output/`: Directory where solutions are saved
 
 ## License
 
