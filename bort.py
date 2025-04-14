@@ -46,7 +46,6 @@ def main():
             output_filename = os.path.join(output_dir, f"{name_without_ext}_solution.txt")
             
             save_solution_file(solution_text, output_filename)
-            print(f"Solution saved to {output_filename}")
         except Exception as e:
             print(f"\nError during solution processing: {e}")
     else:

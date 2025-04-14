@@ -1,4 +1,4 @@
-#Simplified Solver for Debugging
+#Simplified Solver for Debugging running simplified_bort.py
 
 import sys
 import os
@@ -28,10 +28,20 @@ def main():
     
     solve_time_limit_ms = 60 * 1000 * 1
     
-    solver, variables = solve_book_scanning(
-        B_all, L_all, D_days, book_scores_dict, libraries_dict,
-        time_limit_ms=solve_time_limit_ms
-    )
+    # Pass the input filename to the solver for validation if supported
+    try:
+        # Check if the function accepts the input_file parameter
+        solver, variables = solve_book_scanning(
+            B_all, L_all, D_days, book_scores_dict, libraries_dict,
+            time_limit_ms=solve_time_limit_ms,
+            input_file=input_filename
+        )
+    except TypeError:
+        # If not supported, call without the input_file parameter
+        solver, variables = solve_book_scanning(
+            B_all, L_all, D_days, book_scores_dict, libraries_dict,
+            time_limit_ms=solve_time_limit_ms
+        )
     
     if solver and variables:
         try:
@@ -45,7 +55,17 @@ def main():
             output_filename = os.path.join(output_dir, f"{name_without_ext}_simplified_solution.txt")
             
             save_solution_file(solution_text, output_filename)
-            print(f"Solution saved to {output_filename}")
+            
+            # Manually run the validator on the generated solution
+            try:
+                sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+                from validate import validate_solution
+                
+                validation_result = validate_solution(input_filename, output_filename)
+                print("\nValidator's assessment of the solution:")
+                print(validation_result)
+            except ImportError:
+                print("\nCould not import validate module to check solution score.")
         except Exception as e:
             print(f"\nError during solution processing: {e}")
     else:
