@@ -30,18 +30,16 @@ The underlying solver is SCIP (via OR-Tools), which is a high-performance solver
 ### Running the Solver
 
 ```bash
-python main.py --input [input_file] --output [output_file] --time_limit [seconds]
+python bort.py [input_file]
 ```
 
 Parameters:
 - `--input`: Path to the input problem file (required)
-- `--output`: Path to save the solution (default: solution.txt)
-- `--time_limit`: Time limit for the solver in seconds (default: 300)
 
 ### Example
 
 ```bash
-python main.py --input data/a_example.txt --output solutions/a_solution.txt --time_limit 60
+python main.py data/a_example.txt
 ```
 
 ### Validating Solutions
@@ -49,7 +47,7 @@ python main.py --input data/a_example.txt --output solutions/a_solution.txt --ti
 You can validate the solutions using the validation script:
 
 ```bash
-python validate.py --input [input_file] --solution [solution_file]
+python validate.py [input_file] [solution_file]
 ```
 
 ## Input Format
@@ -72,7 +70,7 @@ The solution file format:
 ## Repository Structure
 
 - `bort_solver.py`: Core optimization model implementation
-- `main.py`: Command-line interface for running the solver
+- `bort.py`: Command-line interface for running the solver
 - `utils.py`: Utility functions for file I/O and solution formatting
 - `validate.py`: Script to validate solutions against problem constraints
 
