@@ -40,8 +40,7 @@ def main():
     if solver and variables:
         try:
             objective_value = solver.Objective().Value()
-            print(f"\nObjective Value (Mathematical) = {objective_value:.0f}")
-            
+ 
             solution_text = get_solution_output(solver, variables, libraries_dict, L_all)
             
             # Create the output filename in the output directory
