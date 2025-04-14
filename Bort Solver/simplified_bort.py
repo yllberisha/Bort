@@ -1,3 +1,5 @@
+#Simplified Solver for Debugging
+
 from ortools.linear_solver import pywraplp
 from utils import get_solution_output, read_input_file, save_solution_file
 
@@ -78,39 +80,13 @@ def solve_book_scanning(B, L, D, book_scores, libraries, time_limit_ms=300000):
 
     ##### ⚠️ NEW CONSTRAINT ADDED HERE #####
     # Ensure u[b] = 1 ONLY IF scanned from some library
-    # for b in book_scores:
-    #     relevant_z = [z[l, b] for l in L if (l, b) in z]
-    #     if relevant_z:
-    #         solver.Add(u[b] <= solver.Sum(relevant_z), f"u_bound_{b}")
+    for b in book_scores:
+        relevant_z = [z[l, b] for l in L if (l, b) in z]
+        if relevant_z:
+            solver.Add(u[b] <= solver.Sum(relevant_z), f"u_bound_{b}")
 
     # Solve
     solver.SetTimeLimit(time_limit_ms)
     status = solver.Solve()
 
     return solver, {'y': y, 'z': z, 'u': u, 't': t, 'p': p}
-
-
-if __name__ == '__main__':
-    input_filename = "toy.txt"
-
-    print(f"Reading input file: {input_filename}")
-    B_all, L_all, D_days, book_scores_dict, libraries_dict = read_input_file(input_filename)
-
-    solve_time_limit_ms = 60 * 1 * 1000  # 20 minutes
-    solver, variables = solve_book_scanning(
-        B_all, L_all, D_days, book_scores_dict, libraries_dict,
-        time_limit_ms=solve_time_limit_ms
-    )
-
-    if solver and variables:
-        try:
-            objective_value = solver.Objective().Value()
-            print(f"\nObjective Value (Total Score) = {objective_value:.0f}")
-            solution_text = get_solution_output(solver, variables, libraries_dict, L_all)
-            output_filename = f"solution_{input_filename.split('.')[0]}.txt"
-            save_solution_file(solution_text, output_filename)
-            print(f"Solution saved to {output_filename}")
-        except Exception as e:
-            print(f"\nError during solution processing: {e}")
-    else:
-        print("\nSolver setup failed or returned None.")

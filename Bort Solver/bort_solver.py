@@ -171,28 +171,3 @@ def solve_book_scanning_strict(B, L, D, book_scores, libraries, time_limit_ms=30
 
     variables = {'y': y, 'z': z, 't': t, 'p': p, 'u': u}
     return solver, variables
-
-if __name__ == '__main__':
-    input_filename = "toy.txt"
-
-    print(f"Reading input file: {input_filename}")
-    B_all, L_all, D_days, book_scores_dict, libraries_dict = read_input_file(input_filename)
-
-    solve_time_limit_ms = 60 * 1000 * 5  # 5 minutes
-    solver, variables = solve_book_scanning_strict(
-        B_all, L_all, D_days, book_scores_dict, libraries_dict,
-        time_limit_ms=solve_time_limit_ms
-    )
-
-    if solver and variables:
-        try:
-            objective_value = solver.Objective().Value()
-            print(f"\nObjective Value (Total Score) = {objective_value:.0f}")
-            solution_text = get_solution_output(solver, variables, libraries_dict, L_all)
-            output_filename = f"solution_{input_filename.split('.')[0]}_strict.txt"
-            save_solution_file(solution_text, output_filename)
-            print(f"Solution saved to {output_filename}")
-        except Exception as e:
-            print(f"\nError during solution processing: {e}")
-    else:
-        print("\nSolver setup failed or returned None.")
