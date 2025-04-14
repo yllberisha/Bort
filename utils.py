@@ -116,7 +116,7 @@ def get_solution_output(solver, variables, libraries, L):
             output_lines.append(f"{l} {len(scanned_books_from_lib)}")
             output_lines.append(" ".join(scanned_books_from_lib))
 
-      actual_output_library_count = (len(output_lines) -1) // 2
+    actual_output_library_count = (len(output_lines) -1) // 2
     output_lines[0] = str(actual_output_library_count)
 
 
