@@ -64,6 +64,10 @@ def solve_book_scanning(B, L, D, book_scores, libraries, time_limit_ms=300000):
     # (8) Signup completes within time
     for l in L:
         solver.Add(t[l] + libraries[l]['signup'] * y[l] <= D, f"signup_time_{l}")
+    
+    
+    # for l in L:
+    #     solver.Add(t[l] <= D * y[l], f"start_time_bound_{l}")
 
     # (9) Capacity constraint (linearized)
     for l in L:
