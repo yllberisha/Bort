@@ -15,7 +15,7 @@ def main():
         print("Usage: python main.py <input_file.txt>")
         sys.exit(1)
     
-    input_filename = sys.argv[1]
+    input_filename = f'input/{sys.argv[1]}'
     
     if not os.path.exists(input_filename):
         print(f"Error: Input file '{input_filename}' not found.")
