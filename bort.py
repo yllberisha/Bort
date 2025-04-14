@@ -1,3 +1,5 @@
+# Main script for running the full Book Scanning solver (bort_solver.py)
+
 import sys
 import os
 
@@ -5,9 +7,10 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "Bort Solver"))
 
 from bort_solver import solve_book_scanning_strict
 from utils import read_input_file, get_solution_output, save_solution_file
+# Import the validation function directly
+from validate import validate_solution
 
 def main():
-
     if len(sys.argv) != 2:
         print("Usage: python main.py <input_file.txt>")
         sys.exit(1)
@@ -28,6 +31,7 @@ def main():
     # Set a time limit for the solver (5 minutes)
     solve_time_limit_ms = 60 * 1000 * 5
     
+    # Run the solver
     solver, variables = solve_book_scanning_strict(
         B_all, L_all, D_days, book_scores_dict, libraries_dict,
         time_limit_ms=solve_time_limit_ms
@@ -36,7 +40,7 @@ def main():
     if solver and variables:
         try:
             objective_value = solver.Objective().Value()
-            print(f"\nObjective Value (Total Score) = {objective_value:.0f}")
+            print(f"\nObjective Value (Mathematical) = {objective_value:.0f}")
             
             solution_text = get_solution_output(solver, variables, libraries_dict, L_all)
             
@@ -46,10 +50,16 @@ def main():
             output_filename = os.path.join(output_dir, f"{name_without_ext}_solution.txt")
             
             save_solution_file(solution_text, output_filename)
+            
+            # Validate the solution directly
+            print("\nValidating solution...")
+            validation_result = validate_solution(input_filename, output_filename)
+            print(validation_result)
+            
         except Exception as e:
             print(f"\nError during solution processing: {e}")
     else:
         print("\nSolver setup failed or returned None.")
 
 if __name__ == "__main__":
-    main()
+    main() 

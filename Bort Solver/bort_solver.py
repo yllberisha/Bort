@@ -1,54 +1,8 @@
 from ortools.linear_solver import pywraplp
 import time
-import os
-import sys
-import tempfile
 from utils import get_solution_output, read_input_file, save_solution_file
 
-# Add parent directory to path to import validate
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from validate import validate_solution, read_input_file as validate_read_input
-
-def calculate_validator_score(solver, variables, book_scores, libraries, L, D, input_file):
-    """
-    Uses the validator from validate.py to calculate the score.
-    This ensures scores are calculated with exactly the same logic as the validator.
-    """
-    if not solver or not variables:
-        return 0, 0, {}
-    
-    # First, get the solution output text
-    solution_text = get_solution_output(solver, variables, libraries, L)
-    
-    # Write to a temporary file
-    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as tmp_file:
-        tmp_file.write(solution_text)
-        tmp_file_path = tmp_file.name
-    
-    try:
-        # Run the validator
-        validation_result = validate_solution(input_file, tmp_file_path)
-        
-        # Extract the score
-        if "Total score: " in validation_result:
-            # Extract score from validation result
-            score_line = [line for line in validation_result.split('\n') if "Total score: " in line][0]
-            score = int(score_line.split("Total score: ")[1])
-            
-            # Extract book count
-            books_line = [line for line in validation_result.split('\n') if "Scanned books: " in line][0]
-            book_count = int(books_line.split("Scanned books: ")[1].split('/')[0])
-            
-            return score, book_count, validation_result
-        else:
-            # Validation found errors
-            return 0, 0, validation_result
-    finally:
-        # Clean up the temporary file
-        if os.path.exists(tmp_file_path):
-            os.remove(tmp_file_path)
-
-def solve_book_scanning_strict(B, L, D, book_scores, libraries, time_limit_ms=300000, input_file=None):
+def solve_book_scanning_strict(B, L, D, book_scores, libraries, time_limit_ms=300000):
     """
     Builds and solves the MILP model for book scanning with a corrected formulation.
     
@@ -59,7 +13,6 @@ def solve_book_scanning_strict(B, L, D, book_scores, libraries, time_limit_ms=30
         book_scores: Dict mapping book IDs to their scores.
         libraries: Dict containing library details (books, signup time, ship rate).
         time_limit_ms: Solver time limit in milliseconds (default: 300,000 ms = 5 minutes).
-        input_file: Path to the input file (for validation).
     
     Returns:
         - solver: The OR-Tools solver instance with the solution.
@@ -216,27 +169,9 @@ def solve_book_scanning_strict(B, L, D, book_scores, libraries, time_limit_ms=30
     else:
         raise Exception(f"Solver failed with status: {status}")
 
-    # Calculate and print the scores
+    # Calculate and print the objective value
     objective_value = solver.Objective().Value()
-    
     print(f"\nObjective Value (Mathematical) = {objective_value:.0f}")
-    
-    # If input_file is provided, use the validate.py validator
-    if input_file:
-        validated_score, books_scanned, validation_details = calculate_validator_score(
-            solver, {'y': y, 'z': z, 't': t, 'p': p, 'u': u}, 
-            book_scores, libraries, L, D, input_file
-        )
-        
-        print(f"Validated Score (Using validator.py) = {validated_score:.0f}")
-        print(f"Books Scanned = {books_scanned}")
-        
-        # If there's a difference, explain it
-        if objective_value != validated_score:
-            print(f"\nScore Difference = {objective_value - validated_score:.0f}")
-            print("|* This difference occurs because the validator accounts for time constraints")
-            print("|* and library capacities when calculating the score, while the solver's")
-            print("|* objective value is based on the mathematical model.\n")
     
     variables = {'y': y, 'z': z, 't': t, 'p': p, 'u': u}
     return solver, variables
