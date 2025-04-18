@@ -155,6 +155,7 @@ def solve_book_scanning_strict(B, L, D, book_scores, libraries, time_limit_ms=30
     # --- Solve the Model ---
     print("\nStarting solver...")
     solve_start_time = time.time()
+    solver.EnableOutput()  # Enable solver logging
     status = solver.Solve()
     solve_end_time = time.time()
     print(f"Solver finished in {solve_end_time - solve_start_time:.2f} seconds.")

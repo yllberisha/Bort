@@ -91,6 +91,7 @@ def solve_book_scanning(B, L, D, book_scores, libraries, time_limit_ms=300000):
 
     # Solve
     solver.SetTimeLimit(time_limit_ms)
+    solver.EnableOutput()  # Enable solver logging
     status = solver.Solve()
 
     return solver, {'y': y, 'z': z, 'u': u, 't': t, 'p': p}
