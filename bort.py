@@ -29,7 +29,7 @@ def main():
         os.makedirs(output_dir)
     
     # Set a time limit for the solver (5 minutes)
-    solve_time_limit_ms = 60 * 1000 * 5
+    solve_time_limit_ms = 60 * 1000 * 30
     
     # Run the solver
     solver, variables = solve_book_scanning_strict(
