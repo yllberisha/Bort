@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Optimised Hash Code 2020 “Book Scanning” solver
+Optimised Hash Code 2020 "Book Scanning" solver
 ================================================
 *Bug‑safe revision* – avoids CP‑SAT seg‑faults seen on some wheels.
 
@@ -29,7 +29,7 @@ from typing import Dict, List, Tuple
 
 from ortools.sat.python import cp_model
 
-from utils import read_input_file, save_solution_file
+from Bort_Solver.utils import read_input_file, save_solution_file
 
 # ---------------------------------------------------------------------------
 # Types
@@ -125,25 +125,21 @@ def solve_cp_sat(B, L, D, book_scores, libraries, *, time_limit_s=300, workers=1
         def __init__(self):
             super().__init__(); self.t0 = time.time()
         def OnSolutionCallback(self):
-            best = solver.ObjectiveValue(); bound = solver.BestObjectiveBound()
+            best = self.ObjectiveValue(); bound = self.BestObjectiveBound()
             gap = 100 * (best - bound) / max(1, best)
             print(f"inc {best:,.0f}  gap {gap:4.1f}%  t {time.time()-self.t0:5.1f}s")
     cb = Prog()
 
     # warm‑start (model.AddHint is the correct API)
     g_order, g_books = greedy_schedule(D, libraries)
-    hint_v, hint_val = [], []
     acc = 0
     for l in g_order:
-        hint_v.extend([y[l], start[l]])  # Add library selection and start time variables
-        hint_val.extend([1, acc])        # Set their values (library selected, start time)
+        model.AddHint(y[l], 1)  # Add library selection hint
+        model.AddHint(start[l], acc)  # Add start time hint
         acc += libraries[l]["signup"]    # Accumulate signup times
         for b in g_books[l]:             # For each book in the greedy solution
             if (l, b) in z:              # If the book is part of the library's books
-                hint_v.append(z[(l, b)]) # Add the book assignment variable
-                hint_val.append(1)       # Set its value to 1 (book assigned)
-    if hint_v:
-        model.AddHint(hint_v, hint_val)  # Correctly add hints to the model
+                model.AddHint(z[(l, b)], 1)  # Add book assignment hint
 
     status = solver.SolveWithSolutionCallback(model, cb)
     if status not in (cp_model.OPTIMAL, cp_model.FEASIBLE):
