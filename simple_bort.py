@@ -3,7 +3,7 @@
 import sys
 import os
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "Bort Solver"))
+sys.path.append(os.path.join(os.path.dirname(__file__), "Bort_Solver"))
 
 from simplified_bort import solve_book_scanning
 from utils import read_input_file, get_solution_output, save_solution_file
@@ -28,7 +28,7 @@ def main():
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     
-    solve_time_limit_ms = 60 * 1000 * 1
+    solve_time_limit_ms = 60 * 1000 * 20
     
     # No need to try with input_file parameter - simplified solver doesn't have it
     solver, variables = solve_book_scanning(

@@ -4,13 +4,6 @@ Optimised Hash Code 2020 "Book Scanning" solver
 ================================================
 *Bug‑safe revision* – avoids CP‑SAT seg‑faults seen on some wheels.
 
-Changes vs previous version
----------------------------
-1. `num_search_workers` is now **1 by default** (no threading).
-2. New CLI flag `--workers N` to override the thread count *after* a
-   successful single‑thread test.
-3. Tiny cosmetic tidy‑ups; logic is unchanged.
-
 Call:
 ```bash
 python bort_solver_optimized.py a_example.txt --time 120  # single thread

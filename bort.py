@@ -3,12 +3,12 @@
 import sys
 import os
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "Bort Solver"))
+# Import the validation function directly
+from validate import validate_solution
+sys.path.append(os.path.join(os.path.dirname(__file__), "Bort_Solver"))
 
 from bort_solver import solve_book_scanning_strict
 from utils import read_input_file, get_solution_output, save_solution_file
-# Import the validation function directly
-from validate import validate_solution
 
 def main():
     if len(sys.argv) != 2:
