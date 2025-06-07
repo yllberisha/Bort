@@ -1,5 +1,3 @@
-# Main script for running the simplified solver (
-
 import sys
 import os
 
@@ -7,7 +5,6 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "Bort_Solver"))
 
 from simplified_bort import solve_book_scanning
 from utils import read_input_file, get_solution_output, save_solution_file
-# Import the validation function directly
 from validate import validate_solution
 
 def main():
@@ -30,7 +27,6 @@ def main():
     
     solve_time_limit_ms = 60 * 1000 * 20
     
-    # No need to try with input_file parameter - simplified solver doesn't have it
     solver, variables = solve_book_scanning(
         B_all, L_all, D_days, book_scores_dict, libraries_dict,
         time_limit_ms=solve_time_limit_ms
@@ -49,7 +45,6 @@ def main():
             
             save_solution_file(solution_text, output_filename)
             
-            # Validate the solution directly
             print("\nValidating solution...")
             validation_result = validate_solution(input_filename, output_filename)
             print(validation_result)

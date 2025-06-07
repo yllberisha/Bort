@@ -2,8 +2,6 @@
 
 import sys
 import os
-
-# Import the validation function directly
 from validate import validate_solution
 sys.path.append(os.path.join(os.path.dirname(__file__), "Bort_Solver"))
 

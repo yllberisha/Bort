@@ -127,11 +127,11 @@ def solve_cp_sat(B, L, D, book_scores, libraries, *, time_limit_s=300, workers=1
     g_order, g_books = greedy_schedule(D, libraries)
     acc = 0
     for l in g_order:
-        model.AddHint(y[l], 1)  # Add library selection hint
-        model.AddHint(start[l], acc)  # Add start time hint
-        acc += libraries[l]["signup"]    # Accumulate signup times
-        for b in g_books[l]:             # For each book in the greedy solution
-            if (l, b) in z:              # If the book is part of the library's books
+        model.AddHint(y[l], 1)               # Add library selection hint
+        model.AddHint(start[l], acc)         # Add start time hint
+        acc += libraries[l]["signup"]        # Accumulate signup times
+        for b in g_books[l]:                 # For each book in the greedy solution
+            if (l, b) in z:                  # If the book is part of the library's books
                 model.AddHint(z[(l, b)], 1)  # Add book assignment hint
 
     status = solver.SolveWithSolutionCallback(model, cb)
