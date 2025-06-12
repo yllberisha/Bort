@@ -36,7 +36,7 @@ from typing import Dict, List, Tuple
 
 from ortools.sat.python import cp_model
 
-from utils import read_input_file, save_solution_file
+from Bort_Solver.utils import read_input_file, save_solution_file
 
 # ──────────────────────────────────────────────────────────────
 # Types

@@ -23,14 +23,13 @@ def read_input_file(filename):
     B_count, L_count, D = map(int, lines[0].split())
 
     scores = list(map(int, lines[1].split()))
-    book_scores = {i: score for i, score in enumerate(scores) if score > 0} # OPTIONAL: Filter zero scores
-    B = list(range(B_count)) # Keep original book indices
-
+    book_scores = {i: score for i, score in enumerate(scores) if score > 0}
+    B = list(range(B_count))
 
     libraries_data = {}
     L_ids = list(range(L_count))
 
-    active_L_ids = [] # Keep track of libraries that *can* be signed up
+    active_L_ids = []
 
     index = 2
     for l_id in L_ids:
@@ -43,18 +42,18 @@ def read_input_file(filename):
         book_list_all = list(map(int, lines[index].split()))
         index += 1
 
-        book_list_filtered = book_list_all # Keep all books for now, rely on objective
+        book_list_filtered = book_list_all 
 
         if signup >= D:
              print(f"Skipping library {l_id} (signup {signup} >= D {D} or no scoreable books)")
-             continue # Skip this library
+             continue
 
         active_L_ids.append(l_id)
         libraries_data[l_id] = {
-            'books': book_list_filtered, # Use filtered list if applying book filter
+            'books': book_list_filtered,
             'signup': signup,
             'ship': ship,
-            'original_books': book_list_all # Keep original list if needed elsewhere
+            'original_books': book_list_all
             }
 
     L = active_L_ids
@@ -67,7 +66,7 @@ def read_input_file(filename):
     B = list(range(B_count))
 
 
-    return B, L, D, book_scores, libraries_data # Return modified L and potentially B
+    return B, L, D, book_scores, libraries_data
 
 
 def get_solution_output(solver, variables, libraries, L):
@@ -99,7 +98,7 @@ def get_solution_output(solver, variables, libraries, L):
     output_lines = []
     output_lines.append(str(len(selected_libraries_info)))
 
-    scanned_books_overall = set() # To verify constraint 2
+    scanned_books_overall = set()
 
     for lib_info in selected_libraries_info:
         l = lib_info['id']

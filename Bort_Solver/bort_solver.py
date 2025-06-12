@@ -140,13 +140,13 @@ def solve_book_scanning_strict(B, L, D, book_scores, libraries, time_limit_ms=30
 
     print(f"Time after constraint 9: {time.time() - start_time:.2f}s")
 
-    # 10. New constraint: u[b] ≤ ∑ z[l,b] for each book b
+    # 10. u[b] ≤ ∑ z[l,b] for each book b
     for b in B:
         relevant_z_vars = [z[(l, b)] for l in L if b in libraries[l]['books'] and (l, b) in z]
         if relevant_z_vars:
             solver.Add(u[b] <= solver.Sum(relevant_z_vars), name=f"u_bounded_by_z_{b}")
 
-    print(f"Time after new constraint: {time.time() - start_time:.2f}s")
+    print(f"Time after constraint 10: {time.time() - start_time:.2f}s")
 
     print(f"Model building completed in {time.time() - start_time:.2f} seconds.")
     print(f"Number of variables = {solver.NumVariables()}")
