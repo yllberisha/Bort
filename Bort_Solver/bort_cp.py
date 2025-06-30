@@ -1,12 +1,8 @@
-from __future__ import annotations
-
 import time
 from collections import defaultdict
-from typing import Dict, List, Tuple
+from typing import Dict, List
 
 from ortools.sat.python import cp_model
-
-from Bort_Solver.utils import read_input_file, save_solution_file
 
 
 BookID = int

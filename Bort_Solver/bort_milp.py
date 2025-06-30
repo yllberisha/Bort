@@ -28,7 +28,12 @@ def solve_book_scanning_milp(B, L, D, book_scores, libraries, time_limit_ms=3000
     print(f"Solver time limit set to {time_limit_ms / 1000} seconds.")
     start_time = time.time()
 
-    # --- Decision Variables ---
+
+
+    # ---------------------------------------------------------------------------
+    #                          Decision Variables
+    # ---------------------------------------------------------------------------
+
     # y[l]: Binary variable, 1 if library l is signed up, 0 otherwise
     y = {l: solver.IntVar(0, 1, f'y[{l}]') for l in L}
 
@@ -54,7 +59,11 @@ def solve_book_scanning_milp(B, L, D, book_scores, libraries, time_limit_ms=3000
 
     print(f"Time after variable creation: {time.time() - start_time:.2f}s")
 
-    # --- Objective Function ---
+
+    # ---------------------------------------------------------------------------
+    #                          Objective Function
+    # ---------------------------------------------------------------------------
+
     # Maximize the total score: ∑ (book_score[b] * u[b])
     objective = solver.Objective()
     for b in B:
@@ -64,7 +73,10 @@ def solve_book_scanning_milp(B, L, D, book_scores, libraries, time_limit_ms=3000
 
     print(f"Time after objective setup: {time.time() - start_time:.2f}s")
 
-    # --- Constraints ---
+
+    # ---------------------------------------------------------------------------
+    #                            Constraints
+    # ---------------------------------------------------------------------------
 
     # 1. Each book is scanned at most once: ∑ z[l,b] ≤ 1 for all b
     for b in B:
@@ -145,11 +157,12 @@ def solve_book_scanning_milp(B, L, D, book_scores, libraries, time_limit_ms=3000
         if relevant_z_vars:
             solver.Add(u[b] <= solver.Sum(relevant_z_vars), name=f"u_bounded_by_z_{b}")
 
-    print(f"Time after constraint 10: {time.time() - start_time:.2f}s")
 
+    print(f"Time after constraint 10: {time.time() - start_time:.2f}s")
     print(f"Model building completed in {time.time() - start_time:.2f} seconds.")
     print(f"Number of variables = {solver.NumVariables()}")
     print(f"Number of constraints = {solver.NumConstraints()}")
+
 
     # --- Solve the Model ---
     print("\nStarting solver...")
