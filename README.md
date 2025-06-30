@@ -1,6 +1,6 @@
 # Bort Solver: Google HashCode 2020 Book Scanning Optimizer
 
-This repository contains an implementation of a Mixed Integer Linear Programming (MILP) solution for the Google HashCode 2020 Book Scanning problem using Google's OR-Tools optimization library.
+This repository contains an implementation of a Mixed Integer Linear Programming (MILP) and Constraint Programming (CP-SAT) solution for the Google HashCode 2020 Book Scanning problem using Google's OR-Tools optimization library.
 
 ## Problem Description
 
@@ -13,12 +13,12 @@ The goal is to maximize the total score of all unique books scanned within a lim
 
 ## Solution Approach
 
-This solution uses a MILP approach with the following key components:
+This solution uses both MILP and CP-SAT approaches with the following key components:
 - Decision variables for library selection, book scanning, and library signup order
 - Objective function to maximize total book scores
 - Constraints for library signup times, book scanning capacity, and unique book scanning
 
-The underlying solver is SCIP (via OR-Tools), which is a high-performance solver for mixed integer programming problems.
+The underlying solver is SCIP (for MILP) or CP-SAT (for CP), both via OR-Tools.
 
 ## Requirements
 
@@ -32,21 +32,26 @@ The underlying solver is SCIP (via OR-Tools), which is a high-performance solver
 The solver expects input files to be in the `input/` directory and automatically saves solutions to the `output/` directory.
 
 ```bash
-python bort.py [input_filename]
+python bort.py [input_filename] [--cp] [--milp] [--time SECONDS] [--workers N]
 ```
 
-Where `[input_filename]` is the name of the file in the `input/` directory.
+- `[input_filename]`: Name of the file in the `input/` directory.
+- `--cp`: Use the CP-SAT solver (default is MILP if not specified).
+- `--milp`: Explicitly use the MILP solver (default).
+- `--time SECONDS`: Time limit for the solver in seconds (applies to both MILP and CP; default 300).
+- `--workers N`: Number of search workers (CP only; default 1).
 
-### Example
+### Examples
 
+Run MILP (default):
 ```bash
-python bort.py a_example.txt
+python bort.py a_example.txt --time 120
 ```
 
-This will:
-1. Read the problem from `input/a_example.txt`
-2. Solve it using the MILP model
-3. Save the solution to `output/a_example_solution.txt`
+Run CP-SAT:
+```bash
+python bort.py a_example.txt --cp --time 60 --workers 4
+```
 
 ## Input Format
 
@@ -64,14 +69,6 @@ The solution file format:
 - For each library to sign up:
   - First line: `L K` (library ID, number of books to scan)
   - Second line: IDs of books to scan in order
-
-## Repository Structure
-
-- `bort_solver.py`: Core optimization model implementation
-- `bort.py`: Command-line script that runs the solver
-- `utils.py`: Utility functions for file I/O and solution formatting
-- `input/`: Directory containing problem input files
-- `output/`: Directory where solutions are saved
 
 ## License
 
