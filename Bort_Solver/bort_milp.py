@@ -1,8 +1,7 @@
 from ortools.linear_solver import pywraplp
 import time
-from utils import get_solution_output, read_input_file, save_solution_file
 
-def solve_book_scanning_strict(B, L, D, book_scores, libraries, time_limit_ms=300000):
+def solve_book_scanning_milp(B, L, D, book_scores, libraries, time_limit_ms=300000):
     """
     Builds and solves the MILP model for book scanning with a corrected formulation.
     
@@ -175,4 +174,4 @@ def solve_book_scanning_strict(B, L, D, book_scores, libraries, time_limit_ms=30
     print(f"\nObjective Value (Mathematical) = {objective_value:.0f}")
     
     variables = {'y': y, 'z': z, 't': t, 'p': p, 'u': u}
-    return solver, variables
+    return solver, variables 

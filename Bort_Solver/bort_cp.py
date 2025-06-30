@@ -1,21 +1,5 @@
-# -*- coding: utf-8 -*-
-"""
-Optimised Hash Code 2020 "Book Scanning" solver
-================================================
-*Bug‑safe revision* – avoids CP‑SAT seg‑faults seen on some wheels.
-
-Call:
-```bash
-python bort_solver_optimized.py a_example.txt --time 120  # single thread
-python bort_solver_optimized.py a_example.txt --workers 4 # if stable
-```
-"""
-
 from __future__ import annotations
 
-import argparse
-import os
-import sys
 import time
 from collections import defaultdict
 from typing import Dict, List, Tuple
@@ -24,9 +8,6 @@ from ortools.sat.python import cp_model
 
 from Bort_Solver.utils import read_input_file, save_solution_file
 
-# ---------------------------------------------------------------------------
-# Types
-# ---------------------------------------------------------------------------
 
 BookID = int
 LibID = int
@@ -123,7 +104,7 @@ def solve_cp_sat(B, L, D, book_scores, libraries, *, time_limit_s=300, workers=1
             print(f"inc {best:,.0f}  gap {gap:4.1f}%  t {time.time()-self.t0:5.1f}s")
     cb = Prog()
 
-    # warm‑start (model.AddHint is the correct API)
+    # warm‑start
     g_order, g_books = greedy_schedule(D, libraries)
     acc = 0
     for l in g_order:
@@ -158,33 +139,3 @@ def build_output(order, books):
         lines.append(f"{l} {len(bl)}")
         lines.append(" ".join(map(str, bl)))
     return "\n".join(lines)
-
-# ---------------------------------------------------------------------------
-# CLI
-# ---------------------------------------------------------------------------
-
-def main():
-    p = argparse.ArgumentParser(description="Optimised CP‑SAT solver for Book‑Scanning")
-    p.add_argument("input", help="input file name inside ./input")
-    p.add_argument("--time", type=int, default=300, help="time limit s")
-    p.add_argument("--workers", type=int, default=1, help="search workers (default 1)")
-    args = p.parse_args()
-
-    inp = os.path.join("input", args.input)
-    if not os.path.exists(inp):
-        sys.exit(f"input '{inp}' not found")
-
-    B, L_raw, D, scores, libs_raw = read_input_file(inp)
-    libs = preprocess(B, libs_raw, D, scores)
-    L = list(libs)
-    print(f"libraries kept: {len(L)} / {len(libs_raw)}")
-
-    obj, order, books = solve_cp_sat(B, L, D, scores, libs, time_limit_s=args.time, workers=args.workers)
-    out = build_output(order, books)
-    out_dir = "output"; os.makedirs(out_dir, exist_ok=True)
-    fname = os.path.join(out_dir, f"{os.path.splitext(args.input)[0]}_cp_sat.txt")
-    save_solution_file(out, fname)
-    print(f"score {int(obj):,} – saved ▶ {fname}")
-
-if __name__ == "__main__":
-    main()
