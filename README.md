@@ -70,15 +70,6 @@ The solution file format:
   - First line: `L K` (library ID, number of books to scan)
   - Second line: IDs of books to scan in order
 
-## Repository Structure
-
-- `bort_solver.py`: Core MILP optimization model implementation
-- `bort_cp.py`: Core CP-SAT optimization model implementation
-- `bort.py`: Command-line script that runs the solver
-- `utils.py`: Utility functions for file I/O and solution formatting
-- `input/`: Directory containing problem input files
-- `output/`: Directory where solutions are saved
-
 ## License
 
 This project is open source and available under the MIT License. 
