@@ -42,7 +42,8 @@ def preprocess(B, libraries, D, book_scores):
         if d["signup"] >= D:
             continue
         max_b = d["ship"] * (D - d["signup"])
-        books = sorted(d["books"], key=lambda b: book_scores[b], reverse=True)[:max_b]
+        valid_books = [b for b in d["books"] if b in book_scores]
+        books = sorted(valid_books, key=lambda b: book_scores[b], reverse=True)[:max_b]
         libs[l] = {
             **d,
             "books": books,
