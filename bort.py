@@ -28,7 +28,7 @@ def main(args):
 
         obj, order, books = solve_cp_sat(
             B, list(pre_libs), D, scores, pre_libs,
-            time_limit_s=args.time,
+            time_limit_s=args.time * 1000,
             workers=args.workers
         )
 
