@@ -127,4 +127,7 @@ def save_solution_file(solution_text, filename):
     """
     with open(filename, 'w') as f:
         f.write(solution_text)
+        # Ensure file ends with newline for proper format
+        if not solution_text.endswith('\n'):
+            f.write('\n')
     print(f"Solution saved to {filename}")
