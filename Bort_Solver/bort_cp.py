@@ -1,54 +1,52 @@
+from __future__ import annotations
+
 import time
 from collections import defaultdict
 from typing import Dict, List
 
 from ortools.sat.python import cp_model
+import sys
+
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 
 
 BookID = int
 LibID = int
 
-# ---------------------------------------------------------------------------
-# Greedy warm‑start
-# ---------------------------------------------------------------------------
-
-def greedy_schedule(D: int, libraries: Dict[LibID, dict]):
+def greedy_lib_order(D: int, libraries: Dict[LibID, dict]) -> List[LibID]:
+    """Greedy function returning only library order for safer hinting"""
     remaining = D
     order: List[LibID] = []
-    books_out: Dict[LibID, List[BookID]] = defaultdict(list)
-    lib_score = {
+    lib_density = {
         l: sum(libraries[l]["book_scores"].values()) / libraries[l]["signup"]
         for l in libraries
     }
-    for l in sorted(lib_score, key=lib_score.get, reverse=True):
+    for l in sorted(lib_density, key=lib_density.get, reverse=True):
         s = libraries[l]["signup"]
         if s >= remaining:
             continue
         remaining -= s
         order.append(l)
-        cap = libraries[l]["ship"] * remaining
-        books_out[l] = [b for b, _ in libraries[l]["sorted_books"][:cap]]
-        used = set().union(*(set(books_out[x]) for x in order[:-1]))
-        books_out[l] = [b for b in books_out[l] if b not in used]
-    return order, books_out
+    return order
 
 # ---------------------------------------------------------------------------
 # Pre‑processing
 # ---------------------------------------------------------------------------
 
 def preprocess(B, libraries, D, book_scores):
+    """Enhanced preprocessing with cleaner memory usage"""
     libs = {}
     for l, d in libraries.items():
         if d["signup"] >= D:
             continue
         max_b = d["ship"] * (D - d["signup"])
-        books = sorted(d["books"], key=lambda b: book_scores[b], reverse=True)[:max_b]
         valid_books = [b for b in d["books"] if b in book_scores]
         books = sorted(valid_books, key=lambda b: book_scores[b], reverse=True)[:max_b]
         libs[l] = {
             **d,
             "books": books,
-            "sorted_books": [(b, book_scores[b]) for b in books],
+            "sorted_books": [(b, book_scores[b]) for b in books],  # Keep for compatibility
             "book_scores": {b: book_scores[b] for b in books},
         }
     return libs
@@ -57,7 +55,8 @@ def preprocess(B, libraries, D, book_scores):
 # CP‑SAT model
 # ---------------------------------------------------------------------------
 
-def solve_cp_sat(B, L, D, book_scores, libraries, *, time_limit_s=300, workers=1):
+def solve_cp_sat(B, L, D, book_scores, libraries, *, 
+                 time_limit_s=300, workers=1, gap_limit=0.0, use_minimal_hint=True):
     model = cp_model.CpModel()
 
     y = {l: model.NewBoolVar(f"y[{l}]") for l in L}
@@ -90,7 +89,7 @@ def solve_cp_sat(B, L, D, book_scores, libraries, *, time_limit_s=300, workers=1
     solver = cp_model.CpSolver()
     solver.parameters.max_time_in_seconds = time_limit_s
     solver.parameters.num_search_workers = workers
-    solver.parameters.relative_gap_limit = 0.02
+    solver.parameters.relative_gap_limit = gap_limit
     solver.parameters.log_search_progress = True
 
     class Prog(cp_model.CpSolverSolutionCallback):
@@ -102,35 +101,48 @@ def solve_cp_sat(B, L, D, book_scores, libraries, *, time_limit_s=300, workers=1
             print(f"inc {best:,.0f}  gap {gap:4.1f}%  t {time.time()-self.t0:5.1f}s")
     cb = Prog()
 
-    # warm‑start
-    g_order, g_books = greedy_schedule(D, libraries)
-    acc = 0
-    for l in g_order:
-        model.AddHint(y[l], 1)               # Add library selection hint
-        model.AddHint(start[l], acc)         # Add start time hint
-        acc += libraries[l]["signup"]        # Accumulate signup times
-        for b in g_books[l]:                 # For each book in the greedy solution
-            if (l, b) in z:                  # If the book is part of the library's books
-                model.AddHint(z[(l, b)], 1)  # Add book assignment hint
+    # warm‑start 
+    if use_minimal_hint:
+        # Minimal hints - safer for large instances
+        try:
+            hint_vars, hint_vals = [], []
+            acc = 0
+            for l in greedy_lib_order(D, libraries):
+                hint_vars.extend([y[l], start[l]])
+                hint_vals.extend([1, acc])
+                acc += libraries[l]["signup"]
+            model.AddHint(hint_vars, hint_vals)
+            print(f"✔  Minimal AddHint injected for {len(hint_vars)} vars")
+        except Exception as e:
+            print("⚠  Minimal AddHint failed – continuing without warm‑start:", e)
 
     status = solver.SolveWithSolutionCallback(model, cb)
     if status not in (cp_model.OPTIMAL, cp_model.FEASIBLE):
-        raise RuntimeError(solver.StatusName(status))
+        raise RuntimeError(f"Solver failed: {solver.StatusName(status)}")
 
-    selected = [l for l in g_order if solver.BooleanValue(y[l])]
+    # Extract solution with proper ordering
+    selected = [l for l in L if solver.BooleanValue(y[l])]
+    selected.sort(key=lambda l: solver.Value(start[l]))  # Sort by start time
     books_out = {l: [] for l in selected}
     used = set()
     for l in selected:
         for b in libraries[l]["books"]:
             if (l, b) in z and solver.BooleanValue(z[(l, b)]) and b not in used:
-                books_out[l].append(b); used.add(b)
-    return solver.ObjectiveValue(), selected, books_out
+                books_out[l].append(b)
+                used.add(b)
+    
+    # Filter out libraries with no books (they waste signup time)
+    selected_with_books = [l for l in selected if books_out[l]]
+    books_out = {l: books_out[l] for l in selected_with_books}
+    
+    return solver.ObjectiveValue(), selected_with_books, books_out
 
 # ---------------------------------------------------------------------------
-# Output builder compatible with HC format
+# Output builder (Hash Code format)
 # ---------------------------------------------------------------------------
 
 def build_output(order, books):
+    """Build output in Hash Code format"""
     lines = [str(len(order))]
     for l in order:
         bl = books[l]
